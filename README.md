@@ -11,7 +11,7 @@
 TODO — 3 linhas:
 
 1. Qual problema voce resolve? 
-> O OpenBook RAG resolve o problema de encontrar, de forma rápida e confiável, respostas específicas dentro de um livro técnico extenso, sem depender de buscas genéricas em várias fontes.
+> O OpenBook RAG resolve o problema de encontrar, de forma rápida e confiável, respostas específicas dentro de um livro técnico extenso, sem que o usuário precise procurar manualmente no PDF inteiro ou depender de respostas genéricas da internet
 2. Para quem? 
 > O projeto é voltado para estudantes, desenvolvedores e pessoas que estão aprendendo Git.
 3. Por que LLM + RAG + Tool-use eh a abordagem certa (vs. busca simples)?
