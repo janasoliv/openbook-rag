@@ -127,6 +127,6 @@ if query:
 
 st.divider()
 st.caption(
-    "TODO README — substitua por: problem statement, arquitetura, custo/latencia, decisoes de design. "
+    "OpenBook RAG — respostas confiáveis sobre o livro Pro Git com citação da página de origem. "
     "Veja `README.md` do projeto para a estrutura completa."
 )
