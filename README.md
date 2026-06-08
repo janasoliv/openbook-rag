@@ -37,7 +37,8 @@ flowchart LR
 
         subgraph ANSWER[Consulta e resposta]
             direction LR
-            QUERY --> RETRIEVE[Retrieve top-k chunks]
+            QUERY --> REWRITE[Rewrite query]
+            REWRITE --> RETRIEVE[Retrieve top-k chunks]
             RETRIEVE <--> CHROMA
             RETRIEVE --> PROMPT[Build context prompt]
             PROMPT --> LLM[LLM Gemini / OpenAI-compatible]
