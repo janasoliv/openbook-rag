@@ -42,8 +42,8 @@ class RAGPipeline:
         embed_model: str | None = None,
     ) -> None:
         self.client, embed_api_base = _make_client()
-        self.llm_model = llm_model or os.environ.get("LLM_MODEL", "gemini-2.5-flash-lite")
-        self.embed_model = embed_model or os.environ.get("EMBED_MODEL", "gemini-embedding-001")
+        self.llm_model = llm_model or os.environ.get("LLM_MODEL", "gpt-4o-mini")
+        self.embed_model = embed_model or os.environ.get("EMBED_MODEL", "text-embedding-3-small")
 
         embed_kwargs: dict[str, Any] = {
             "api_key": os.environ.get("GEMINI_API_KEY") or os.environ.get("OPENAI_API_KEY"),
