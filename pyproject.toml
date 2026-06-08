@@ -1,4 +1,4 @@
-[project]
+[tool.poetry]
 name = "openbook-rag"
 version = "0.1.0"
 description = "Assistente RAG que responde dúvidas sobre o livro Pro Git com base no conteúdo original e citação da página de origem."
@@ -15,8 +15,6 @@ dependencies = [
     "pandas>=2.0",
     "numpy>=1.26",
 ]
-
-[tool.poetry]
 package-mode = false
 
 [project.optional-dependencies]
