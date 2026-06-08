@@ -147,10 +147,35 @@ class RAGPipeline:
             for i in range(len(result["documents"][0]))
         ]
 
+    def rewrite_query(self, query: str) -> str:
+        q = query.lower().strip()
+
+        git_terms = [
+            "commit",
+            "branch",
+            "merge",
+            "rebase",
+            "clone",
+            "push",
+            "pull",
+            "checkout",
+            "status",
+            "log",
+            "remote",
+            "tag",
+        ]
+
+        if any(term in q for term in git_terms) and "git" not in q:
+            return f"No contexto do Git, {query}"
+
+        return query
+
     # ------------------------------------------------------------------ TODO 3
     def answer(self, question: str, k: int = 5) -> dict:
         """Pipeline completo: retrieve + augment + generate. Retorna {answer, sources}."""
-        hits = self.retrieve(question, k=k)
+        rewritten_question = self.rewrite_query(question)
+        
+        hits = self.retrieve(rewritten_question, k=k)
 
         # SEU CODIGO AQUI — TODO 3
         # 1. Montar contexto concatenando os textos dos hits com cabecalho [source:page]
@@ -164,7 +189,10 @@ class RAGPipeline:
 
         prompt = PROMPT_TEMPLATE.format(
             context=context,
-            question=question
+            question=(
+                f"{question}\n\n"
+                f"Pergunta interpretada no contexto do Git: {rewritten_question}"
+            )
         )
 
         response = self.client.chat.completions.create(
