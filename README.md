@@ -98,18 +98,28 @@ Meta da rubrica (banda "excelente"): **≥50% de reducao** + P95 reportado. -->
 
 TODO — 3-5 bullets explicando decisoes NAO obvias:
 
-- Por que escolhi este embedding model? custo, idioma, tamanho do corpus
-- Por que `chunk_size` = X? (testei X', X'', e Y foi melhor por ...)
-- Por que esta tool especifica? (problema X resolveria com Y, escolhi Z porque ...)
-- Por que NAO incluo re-ranking? (corpus pequeno, latencia mais critica)
+- Por que escolhi este embedding model? 
+> Escolhi text-embedding-3-small porque ele equilibra bem custo, qualidade e simplicidade operacional. O corpus é pequeno e fixo, composto pelo livro Pro Git, então não há necessidade de um embedding maior e mais caro. Como o conteúdo técnico tem muitos termos em inglês, especialmente comandos e conceitos de Git, esse modelo atende bem ao idioma dominante do corpus e ainda funciona para perguntas em português, já que a pergunta é convertida em embedding e comparada semanticamente com os trechos indexados.
+
+- Por que `chunk_size` = X? 
+> O projeto usa chunk_size=800 com chunk_overlap=100. Esse tamanho foi escolhido porque preserva contexto suficiente para explicar conceitos técnicos, como branch, merge, rebase e comandos relacionados, sem gerar chunks grandes demais que misturem vários assuntos. Valores menores tenderiam a fragmentar explicações e perder contexto; valores maiores poderiam trazer ruído e reduzir a precisão do trecho recuperado. O overlap de 100 ajuda a não cortar ideias importantes entre chunks consecutivos.
+
+- Por que esta tool especifica?
+> A tool implementada é lookup_chapter(chapter). O problema que ela resolve é a navegação por estrutura do livro: quando o usuário pergunta sobre um capítulo específico ou quer localizar onde um tema aparece, uma busca vetorial pura poderia até encontrar trechos relevantes, mas não necessariamente daria uma visão clara da organização do livro. Escolhi essa tool porque o domínio é um livro técnico com capítulos bem definidos; então um lookup direto por capítulo é simples, barato, determinístico e útil para orientar a recuperação no corpus. Ela complementa o RAG, mas a resposta final ainda deve usar o corpus indexado para citar páginas.
+
+- Por que NAO incluo re-ranking?
+> Não incluí re-ranking porque o corpus é pequeno e fixo, baseado em um único PDF do Pro Git. A recuperação top-k no Chroma, com embeddings e k=5, já é suficiente para o escopo atual. Um re-ranker adicionaria uma segunda etapa de inferência, aumentando latência e possivelmente custo, sem ganho proporcional para esse tamanho de corpus. Como a aplicação é uma demo interativa em Streamlit, a latência de resposta é mais crítica do que espremer uma pequena melhora de precisão.
+
 
 ## Limitations
 
 TODO — 3 bullets honestos:
 
-- Limitacao 1 (e.g., corpus tem X paginas; performance degrada se subir para Y)
-- Limitacao 2 (e.g., free tier do Gemini limita a 15 RPM)
-- Limitacao 3 (e.g., demo nao suporta upload de PDF do usuario — corpus eh fixo)
+- **Limitacao 1**: O corpus é fixo e atualmente baseado apenas no PDF progit.pdf. A aplicação funciona bem para dúvidas sobre o livro Pro Git, mas não responde corretamente sobre conteúdos fora desse material.
+
+- **Limitacao 2**: A recuperação usa busca vetorial top-k simples no Chroma, sem re-ranking. Isso reduz latência e mantém o projeto simples, mas pode trazer trechos menos precisos em perguntas muito ambíguas ou quando vários capítulos tratam de temas parecidos.
+
+- **Limitacao 3**: A demo não suporta upload de PDFs pelo usuário. Para trocar ou ampliar o corpus, é necessário adicionar os arquivos em data/corpus e reconstruir o índice local em data/chroma.
 
 ## Tech stack
 
