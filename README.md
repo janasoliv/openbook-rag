@@ -79,7 +79,7 @@ Meta da rubrica (banda "excelente"): **≥50% de reducao** + P95 reportado.
 
 TODO — 3-5 bullets explicando decisoes NAO obvias:
 
-- Por que escolhi este embedding model? (custo, idioma, tamanho do corpus)
+- Por que escolhi este embedding model? custo, idioma, tamanho do corpus
 - Por que `chunk_size` = X? (testei X', X'', e Y foi melhor por ...)
 - Por que esta tool especifica? (problema X resolveria com Y, escolhi Z porque ...)
 - Por que NAO incluo re-ranking? (corpus pequeno, latencia mais critica)
