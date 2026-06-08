@@ -1,6 +1,4 @@
 """RAG pipeline — chunk, embed, index, retrieve, generate.
-
-Reaproveita as funcoes do notebook 02. Voce vai preencher 3 TODOs aqui.
 """
 
 from __future__ import annotations
@@ -12,6 +10,8 @@ from typing import Any
 import chromadb
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 from openai import OpenAI
+from pypdf import PdfReader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 def _make_client() -> tuple[OpenAI, str]:
@@ -67,26 +67,62 @@ class RAGPipeline:
         """Le PDFs de `corpus_dir`, faz chunking e indexa em Chroma.
 
         Retorna numero de chunks indexados.
-
-        Ja deixei a estrutura do ciclo. Voce completa as 3 partes marcadas.
         """
         # SEU CODIGO AQUI — TODO 1.A
         # Iterar por todos os PDFs em self.corpus_dir.
         # Para cada PDF, ler todas as paginas com PdfReader e extrair texto.
         # Acumular numa lista `docs` com dicts: {"text": str, "source": str, "page": int}
-        # Dica: reaproveite o snippet do notebook 02 (Etapa 1 — Ingestao de PDFs).
         docs: list[dict] = []
+        for pdf_path in sorted(self.corpus_dir.glob("*.pdf")):
+            reader = PdfReader(pdf_path)
+            for page_idx, page in enumerate(reader.pages):
+                text = page.extract_text() or ""
+                if text.strip():
+                    docs.append(
+                        {
+                            "text": text,
+                            "source": pdf_path.name,
+                            "page": page_idx + 1,
+                        }
+                    )
 
         # SEU CODIGO AQUI — TODO 1.B
         # Aplicar RecursiveCharacterTextSplitter com chunk_size=800, overlap=100
         # Quebrar cada doc em chunks e construir lista `chunks` com:
         # {"id": unique_id, "text": str, "source": str, "page": int}
-        # Dica: reaproveite o notebook 02 (Etapa 2 — Chunking Recursivo).
         chunks: list[dict] = []
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=800,
+            chunk_overlap=100,
+            separators=["\n\n", "\n", ". ", " ", ""],
+        )
+        for doc in docs:
+            for i, chunk in enumerate(splitter.split_text(doc["text"])):
+                chunks.append(
+                    {
+                        "id": f"{doc['source']}-p{doc['page']}-c{i}",
+                        "text": chunk,
+                        "source": doc["source"],
+                        "page": doc["page"],
+                        "chunk_idx": i,
+                    }
+                )
 
         # SEU CODIGO AQUI — TODO 1.C
         # Adicionar chunks no Chroma via self.collection.add(ids=, documents=, metadatas=)
-        # Lembre de filtrar metadatas para conter apenas {source, page} (Chroma rejeita listas).
+        # Filtrar metadatas para conter apenas {source, page} (Chroma rejeita listas).
+        if chunks:
+            self.collection.add(
+                ids=[chunk["id"] for chunk in chunks],
+                documents=[chunk["text"] for chunk in chunks],
+                metadatas=[
+                    {
+                        "source": chunk["source"],
+                        "page": chunk["page"],
+                    }
+                    for chunk in chunks
+                ],
+            )
 
         return self.collection.count()
 
@@ -96,8 +132,20 @@ class RAGPipeline:
         # SEU CODIGO AQUI — TODO 2
         # Usar self.collection.query(query_texts=[query], n_results=k)
         # Retornar lista de dicts: {"text", "source", "page", "distance"}
-        # Dica: notebook 02, Etapa 4 — Retrieval.
-        raise NotImplementedError("TODO 2: implementar retrieve()")
+        result = self.collection.query(
+            query_texts=[query], 
+            n_results=k
+        )
+
+        return [
+            {
+                "text": result["documents"][0][i],
+                "source": result["metadatas"][0][i]["source"],
+                "page": result["metadatas"][0][i]["page"],
+                "distance": result["distances"][0][i],
+            }
+            for i in range(len(result["documents"][0]))
+        ]
 
     # ------------------------------------------------------------------ TODO 3
     def answer(self, question: str, k: int = 5) -> dict:
@@ -109,8 +157,30 @@ class RAGPipeline:
         # 2. Construir prompt com PROMPT_TEMPLATE (definido abaixo)
         # 3. Chamar self.client.chat.completions.create(model=self.llm_model, ...)
         # 4. Retornar {"answer": resposta, "sources": [(s, p) for h in hits]}
-        # Dica: notebook 02, Etapa 5 — Augment + Generate.
-        raise NotImplementedError("TODO 3: implementar answer()")
+        context = "\n\n---\n\n".join(
+            f"[{h['source']}:p{h['page']}]\n{h['text']}" 
+            for h in hits
+        )
+
+        prompt = PROMPT_TEMPLATE.format(
+            context=context,
+            question=question
+        )
+
+        response = self.client.chat.completions.create(
+            model=self.llm_model,
+            messages=[
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
+            ],
+            temperature=0.0,
+        )
+        return {
+            "answer": response.choices[0].message.content,
+            "sources": [(h["source"], h["page"]) for h in hits],
+        }
 
 
 PROMPT_TEMPLATE = """Voce e um assistente tecnico. Responda APENAS com base no contexto abaixo.
