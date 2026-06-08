@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Assistente RAG que responde dúvidas sobre o livro Pro Git com base no conteúdo original e citação da página de origem."
 readme = "README.md"
 requires-python = ">=3.10,<4"
-package-mode = false
 dependencies = [
     "openai>=1.0",
     "chromadb>=0.5",
@@ -16,6 +15,9 @@ dependencies = [
     "pandas>=2.0",
     "numpy>=1.26",
 ]
+
+[tool.poetry]
+package-mode = false
 
 [project.optional-dependencies]
 dev = [
