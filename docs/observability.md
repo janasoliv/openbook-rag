@@ -28,6 +28,7 @@ LANGFUSE_HOST=https://cloud.langfuse.com
 
 **3. Decorar suas funções LLM:**
 
+
 ```python
 from langfuse.decorators import observe
 
