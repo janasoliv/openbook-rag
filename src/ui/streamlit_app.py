@@ -31,8 +31,8 @@ from src.pipeline.routing import classify_complexity  # noqa: E402
 # ---------------------------------------------------------------- Streamlit UI
 st.set_page_config(page_title="Portfolio LLM Demo", page_icon=":robot:", layout="centered")
 
-st.title(":robot: TODO — Substitua pelo titulo do seu projeto")
-st.caption("TODO — Substitua: 1-sentence pitch do seu projeto")
+st.title(":robot: OpenBook RAG")
+st.caption("Assistente RAG que responde dúvidas sobre o livro Pro Git com base no conteúdo original e citação da página de origem.")
 
 
 # Inicializacao lazy de pipeline + caches
