@@ -1,6 +1,6 @@
-# TODO — Substitua pelo nome do seu projeto
+# OpenBook RAG
 
-> **TODO** — Substitua por 1 frase explicando o que o seu app faz e para quem.
+> O **OpenBook RAG** é um assistente para estudantes e desenvolvedores que responde dúvidas sobre o livro técnico open-source **Pro Git**, utilizando RAG para recuperar trechos relevantes e citar a página de origem.
 
 <!-- TODO: cole aqui o GIF de demo (10-15s, <5MB) gerado com peek/terminalizer/OBS -->
 
@@ -10,9 +10,12 @@
 
 TODO — 3 linhas:
 
-1. Qual problema voce resolve?
-2. Para quem?
+1. Qual problema voce resolve? 
+> O OpenBook RAG resolve o problema de encontrar, de forma rápida e confiável, respostas específicas dentro de um livro técnico extenso, sem depender de buscas genéricas em várias fontes.
+2. Para quem? 
+> O projeto é voltado para estudantes, desenvolvedores e pessoas que estão aprendendo Git.
 3. Por que LLM + RAG + Tool-use eh a abordagem certa (vs. busca simples)?
+> LLM + RAG + Tool-use permite responder em linguagem natural, recuperar trechos relevantes e citar páginas, melhor que uma busca simples.
 
 ## Arquitetura
 
@@ -39,8 +42,8 @@ TODO — substituir pelo diagrama da SUA arquitetura se diferente.
 
 ```bash
 # 1. Clone (se nao clonou ainda)
-git clone <seu-repo>
-cd projeto-portfolio
+git clone https://github.com/janasoliv/openbook-rag.git
+cd openbook-rag
 
 # 2. Dependencias
 uv venv && source .venv/bin/activate
@@ -91,7 +94,7 @@ TODO — 3 bullets honestos:
 
 ## Tech stack
 
-- **LLM:** Gemini 2.5 Flash-Lite (default) / GPT-4o-mini (alt)
+- **LLM:** GPT-4o-mini (alt)
 - **Embeddings:** gemini-embedding-001
 - **Vector store:** Chroma local
 - **UI:** Streamlit
@@ -101,7 +104,7 @@ TODO — 3 bullets honestos:
 ## Estrutura
 
 ```
-projeto-portfolio/
+openbook-rag/
 ├── data/
 │   ├── corpus/           # seus PDFs (substituir os de exemplo)
 │   └── chroma/           # vector store (gitignored)
@@ -116,7 +119,7 @@ projeto-portfolio/
 ├── tests/test_smoke.py
 ├── pyproject.toml
 ├── .env.example
-└── README.md             # voce esta aqui
+└── README.md
 ```
 
 ## Os 6 TODOs (mapa rapido)
