@@ -8,14 +8,18 @@
 
 ## Problem statement
 
-TODO — 3 linhas:
-
 1. Qual problema voce resolve? 
 > O OpenBook RAG resolve o problema de encontrar, de forma rápida e confiável, respostas específicas dentro de um livro técnico extenso, sem que o usuário precise procurar manualmente no PDF inteiro ou depender de respostas genéricas da internet
 2. Para quem? 
 > O projeto é voltado para estudantes, desenvolvedores e pessoas que estão aprendendo Git.
 3. Por que LLM + RAG + Tool-use eh a abordagem certa (vs. busca simples)?
 > LLM + RAG + Tool-use permite responder em linguagem natural, recuperar trechos relevantes e citar páginas, melhor que uma busca simples.
+
+## Perguntas representativas
+
+- O que é um branch no Git?
+- Como funciona um merge e quando podem ocorrer conflitos?
+- Qual a diferença entre `git pull` e `git fetch`?
 
 ## Arquitetura
 
@@ -135,7 +139,7 @@ TODO — 3 bullets honestos:
 ```
 openbook-rag/
 ├── data/
-│   ├── corpus/           # seus PDFs (substituir os de exemplo)
+│   ├── corpus/           # PDF Pro Git (substituir os de exemplo)
 │   └── chroma/           # vector store (gitignored)
 ├── src/
 │   ├── ui/streamlit_app.py
