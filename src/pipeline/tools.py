@@ -35,7 +35,7 @@ from typing import Any, Callable
 
 def lookup_chapter(chapter: int) -> str:
     """ Retorna o sumário do capítulo informado para apoiar 
-    a navegação no livro Pro Git.
+    a navegação no livro Pro Git. Para oferece uma resposta mais controlada, rápida e determinística quando a pergunta envolve a organização da obra.
     """
 
     chapters = {
