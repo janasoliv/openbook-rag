@@ -22,21 +22,22 @@ TODO — 3 linhas:
 ```mermaid
 flowchart LR
     USER([User]) --> UI[Streamlit UI]
-    UI --> CACHE{Exact cache?}
-    CACHE -->|hit| RESP[Response]
-    CACHE -->|miss| SEM{Semantic cache?}
-    SEM -->|hit| RESP
-    SEM -->|miss| CLS[Classify complexity]
-    CLS -->|simple| CHEAP[Cheap LLM]
-    CLS -->|complex| ORCH[Orchestrator]
-    ORCH --> RAG[(Chroma RAG)]
-    ORCH --> TOOL[Custom tool]
-    RAG --> PREMIUM[Premium LLM]
-    TOOL --> PREMIUM
-    PREMIUM --> RESP
+    UI --> TRACE[Langfuse Observability]
+    UI --> RAG[RAG Pipeline]
+    RAG --> RETRIEVE[Retrieve relevant chunks]
+    RETRIEVE --> CHROMA[(Chroma Vector Store)]
+    CHROMA --> PROMPT[Build context prompt]
+    PROMPT --> LLM[LLM Gemini / OpenAI-compatible]
+    LLM --> RESP[Response with sources]
+    RESP --> UI
+
+    RAG -. logs / latency / metadata .-> TRACE
+    LLM -. traces / model usage .-> TRACE
 ```
 
-TODO — substituir pelo diagrama da SUA arquitetura se diferente.
+O RAG Pipeline é o núcleo da aplicação. Ele recebe a pergunta enviada pela interface Streamlit e executa o fluxo de recuperação aumentada por geração. Primeiro, busca no banco vetorial Chroma os trechos do corpus mais relevantes para a pergunta do usuário. Em seguida, monta um prompt com esses trechos recuperados como contexto. Esse prompt é enviado ao LLM configurado, como Gemini ou outro modelo compatível com a API da OpenAI.
+
+A resposta gerada pelo modelo é baseada no contexto recuperado do corpus, e o sistema também retorna as fontes utilizadas, indicando o arquivo e a página de origem. Durante esse processo, o Langfuse registra eventos de observabilidade, como logs, latência, metadados da execução e informações da chamada ao modelo.
 
 ## Setup
 
