@@ -4,7 +4,7 @@
 
 <!-- TODO: cole aqui o GIF de demo (10-15s, <5MB) gerado com peek/terminalizer/OBS -->
 
-**Live demo:** TODO — substitua pelo link do Streamlit Cloud / HuggingFace Spaces / FastAPI
+**Live demo:** [OpenBook RAG no Streamlit Cloud](https://openbook-rag.streamlit.app/)
 
 ## Problem statement
 
@@ -22,22 +22,39 @@ TODO — 3 linhas:
 ```mermaid
 flowchart LR
     USER([User]) --> UI[Streamlit UI]
-    UI --> TRACE[Langfuse Observability]
-    UI --> RAG[RAG Pipeline]
-    RAG --> RETRIEVE[Retrieve relevant chunks]
-    RETRIEVE --> CHROMA[(Chroma Vector Store)]
-    CHROMA --> PROMPT[Build context prompt]
-    PROMPT --> LLM[LLM Gemini / OpenAI-compatible]
-    LLM --> RESP[Response with sources]
+    UI --> QUERY[User question]
+
+    subgraph RAG[RAG Pipeline]
+        direction TB
+
+        subgraph INDEX[Indexação]
+            direction LR
+            PDFS[(PDF Corpus)] --> INGEST[Read PDFs]
+            INGEST --> CHUNK[Chunk text 800/100]
+            CHUNK --> EMBED[Generate embeddings]
+            EMBED --> CHROMA[(Chroma Vector Store)]
+        end
+
+        subgraph ANSWER[Consulta e resposta]
+            direction LR
+            QUERY --> RETRIEVE[Retrieve top-k chunks]
+            RETRIEVE <--> CHROMA
+            RETRIEVE --> PROMPT[Build context prompt]
+            PROMPT --> LLM[LLM Gemini / OpenAI-compatible]
+            LLM --> RESP[Response with sources]
+        end
+    end
+
     RESP --> UI
 
-    RAG -. logs / latency / metadata .-> TRACE
-    LLM -. traces / model usage .-> TRACE
+    style INDEX stroke:#999999,stroke-width:1.5px
+    style ANSWER stroke:#999999,stroke-width:1.5px
+    linkStyle default stroke:#999999,stroke-width:1.5px;
 ```
 
-O RAG Pipeline é o núcleo da aplicação. Ele recebe a pergunta enviada pela interface Streamlit e executa o fluxo de recuperação aumentada por geração. Primeiro, busca no banco vetorial Chroma os trechos do corpus mais relevantes para a pergunta do usuário. Em seguida, monta um prompt com esses trechos recuperados como contexto. Esse prompt é enviado ao LLM configurado, como Gemini ou outro modelo compatível com a API da OpenAI.
+O RAG Pipeline é responsável por transformar o livro *Pro Git* em uma base consultável. Para isso, o PDF é lido, dividido em chunks de `800` caracteres com `100` de sobreposição, convertido em embeddings e armazenado no Chroma.
 
-A resposta gerada pelo modelo é baseada no contexto recuperado do corpus, e o sistema também retorna as fontes utilizadas, indicando o arquivo e a página de origem. Durante esse processo, o Langfuse registra eventos de observabilidade, como logs, latência, metadados da execução e informações da chamada ao modelo.
+A partir da pergunta do usuário, o sistema recupera os trechos mais relevantes, monta um prompt com esse contexto e envia ao LLM configurado. A resposta final é gerada com base no conteúdo recuperado e apresenta as fontes utilizadas, incluindo arquivo e página. O projeto também registra logs estruturados com `trace_id`, eventos e latência para observabilidade básica.
 
 ## Setup
 
@@ -63,7 +80,7 @@ cp .env.example .env
 streamlit run src/ui/streamlit_app.py
 ```
 
-## Cost & Latency
+<!-- ## Cost & Latency
 
 TODO — preencher apos rodar bench de 50 queries (veja notebook 05).
 
@@ -74,7 +91,7 @@ TODO — preencher apos rodar bench de 50 queries (veja notebook 05).
 | + Semantic cache | $X.XX | XX% | XX ms |
 | **+ Routing cheap-first** | **$X.XX** | **XX%** | **XX ms** |
 
-Meta da rubrica (banda "excelente"): **≥50% de reducao** + P95 reportado.
+Meta da rubrica (banda "excelente"): **≥50% de reducao** + P95 reportado. -->
 
 ## Design decisions
 
@@ -96,7 +113,7 @@ TODO — 3 bullets honestos:
 ## Tech stack
 
 - **LLM:** GPT-4o-mini (alt)
-- **Embeddings:** gemini-embedding-001
+- **Embeddings:** text-embedding-3-small
 - **Vector store:** Chroma local
 - **UI:** Streamlit
 - **Observability:** structured logs com trace_id (Langfuse opcional)
@@ -144,7 +161,7 @@ Veja `projeto-portfolio.pdf` (briefing do projeto) para a rubrica 3-bandas compl
 |---|:-:|---|
 | Técnica | 40% | TODOs 1-6 funcionando + erros tratados + logs |
 | README | 30% | Este arquivo preenchido (incluindo GIF + decisoes + limites) |
-| Custo | 20% | Tabela acima preenchida + reducao ≥50% |
+| Custo | 20% | Tabela acima preenchida + reducao ≥50% (opcional) |
 | Demo | 10% | URL publica acessivel sem crash |
 
 ---
