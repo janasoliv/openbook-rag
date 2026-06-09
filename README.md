@@ -61,6 +61,18 @@ O RAG Pipeline é responsável por transformar o livro *Pro Git* em uma base con
 
 A partir da pergunta do usuário, o sistema recupera os trechos mais relevantes, monta um prompt com esse contexto e envia ao LLM configurado. A resposta final é gerada com base no conteúdo recuperado e apresenta as fontes utilizadas, incluindo arquivo e página. O projeto também registra logs estruturados com `trace_id`, eventos e latência para observabilidade básica.
 
+## Avaliação RAGAS
+
+A qualidade do pipeline RAG foi avaliada com um golden set de perguntas sobre diferentes capítulos do livro *Pro Git*.
+
+| Métrica | Média |
+|---|---:|
+| Faithfulness | 0.96 |
+| Answer relevancy | 0.90 |
+| Context precision | 0.96 |
+
+Os resultados indicam boa fidelidade das respostas ao contexto recuperado, alta relevância em relação às perguntas e boa precisão na recuperação dos trechos usados como fonte.
+
 ## Setup
 
 ```bash
