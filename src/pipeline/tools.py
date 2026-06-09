@@ -6,33 +6,6 @@ from __future__ import annotations
 import json
 from typing import Any, Callable
 
-
-# ============================================================================
-# TODO 4 — Sua tool especifica do dominio
-# ============================================================================
-# Cada projeto precisa de UMA tool customizada que faca sentido para o problema.
-# Exemplos por dominio:
-#   - Livro tecnico:    lookup_chapter(chapter: int) -> str
-#   - Changelog:        check_compat(lib: str, version: str) -> dict
-#   - Podcast:          get_timestamp(quote: str) -> str
-#   - Codigo:           run_snippet(code: str) -> str  (sandboxed)
-#   - Documentos legais: cite_article(law: str, article: int) -> str
-#
-# 1. Implemente a funcao Python real abaixo (substitua o exemplo)
-# 2. Adicione o schema JSON em TOOLS abaixo
-# 3. Registre em TOOL_REGISTRY
-# ============================================================================
-
-
-# SEU CODIGO AQUI — TODO 4
-# def my_domain_tool(arg1: str) -> str:
-#     """Substitua esta funcao pela sua tool especifica.
-
-#     A funcao deve receber argumentos primitivos (str, int, float, bool) e
-#     retornar string com o resultado (sera passado de volta ao LLM como tool result).
-#     """
-#     return f"TODO: implementar tool para o argumento: {arg1}"
-
 def lookup_chapter(chapter: int) -> str:
     """ Retorna o sumário do capítulo informado para apoiar 
     a navegação no livro Pro Git. Para oferece uma resposta mais controlada, rápida e determinística quando a pergunta envolve a organização da obra.
@@ -56,6 +29,65 @@ def lookup_chapter(chapter: int) -> str:
         "Capítulo não encontrado. Informe um número entre 1 e 10."
     )
 
+# NÃO CONSIDERAR NA AVALIAÇÃO A TOOL ABAIXO, AINDA TÁ SENDO DESENVOLVIDA.
+def suggest_study_path(topic: str, level: str = "iniciante") -> str:
+    """Sugere uma trilha de estudo no livro Pro Git para um tema específico."""
+
+    topic_key = topic.lower().strip()
+    level_key = level.lower().strip()
+
+    paths = {
+        "commit": {
+            "iniciante": [
+                "Capítulo 2 — Entender o fluxo básico: status, add e commit.",
+                "Capítulo 7 — Aprofundar em reset, histórico e revisão de commits.",
+            ],
+            "intermediario": [
+                "Capítulo 7 — Estudar edição de histórico, reset e seleção de revisões.",
+                "Capítulo 8 — Ver hooks e políticas de commit.",
+            ],
+        },
+        "branch": {
+            "iniciante": [
+                "Capítulo 2 — Revisar o fluxo básico de trabalho no Git.",
+                "Capítulo 3 — Estudar criação, troca, merge e conflitos de branches.",
+            ],
+            "intermediario": [
+                "Capítulo 3 — Aprofundar em branching e merge.",
+                "Capítulo 5 — Estudar branches remotos e workflows distribuídos.",
+            ],
+        },
+        "github": {
+            "iniciante": [
+                "Capítulo 6 — Estudar criação de repositórios, forks, issues e pull requests.",
+            ],
+            "intermediario": [
+                "Capítulo 5 — Revisar colaboração distribuída.",
+                "Capítulo 6 — Aprofundar em contribuição e revisão de código no GitHub.",
+            ],
+        },
+        "internals": {
+            "iniciante": [
+                "Capítulo 10 — Introdução aos objetos internos do Git.",
+            ],
+            "intermediario": [
+                "Capítulo 10 — Estudar objetos, trees, blobs, commits, packfiles e referências.",
+            ],
+        },
+    }
+
+    if topic_key not in paths:
+        return (
+            "Tema não encontrado na trilha pré-definida. "
+            "Use o RAG para buscar o tema no livro Pro Git."
+        )
+
+    steps = paths[topic_key].get(level_key, paths[topic_key]["iniciante"])
+
+    return "\n".join(
+        [f"Trilha sugerida para '{topic}' ({level_key}):"]
+        + [f"{i+1}. {step}" for i, step in enumerate(steps)]
+    )
 
 TOOLS: list[dict[str, Any]] = [
     # SEU CODIGO AQUI — TODO 4 (continuacao)
@@ -81,11 +113,35 @@ TOOLS: list[dict[str, Any]] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "suggest_study_path",
+            "description": (
+                "Sugere uma trilha de estudo no livro Pro Git para um tema específico, "
+                "indicando capítulos e ordem recomendada de leitura."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "topic": {
+                        "type": "string",
+                        "description": "Tema de Git que o usuário deseja estudar, como commit, branch, github ou internals."
+                    },
+                    "level": {
+                        "type": "string",
+                        "description": "Nível do usuário: iniciante ou intermediario."
+                    }
+                },
+                "required": ["topic"]
+            }
+        }
+    }
 ]
 
 TOOL_REGISTRY: dict[str, Callable[..., str]] = {
-    # "my_domain_tool": my_domain_tool,
     "lookup_chapter": lookup_chapter,
+    "suggest_study_path": suggest_study_path,
 }
 
 
