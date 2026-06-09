@@ -2,7 +2,11 @@
 
 > O **OpenBook RAG** é um assistente para estudantes e desenvolvedores que responde dúvidas sobre o livro técnico open-source **Pro Git**, utilizando RAG para recuperar trechos relevantes e citar a página de origem.
 
+
 <!-- TODO: cole aqui o GIF de demo (10-15s, <5MB) gerado com peek/terminalizer/OBS -->
+<p align="center">
+  <img src="assets/openbook-rag-demo-1.png" alt="Interface do OpenBook RAG" width="800">
+</p>
 
 **Live demo:** [OpenBook RAG no Streamlit Cloud](https://openbook-rag.streamlit.app/)
 
